@@ -1,0 +1,24 @@
+---
+# tasks file for monit
+- name: Install monit to remote host
+  apt:
+    name: monit
+    state: present
+
+- name: create /etc/monit/scripts/ directory
+  file:
+    path: /etc/monit/scripts
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+    
+- name: Copy some notification scripts for monit
+  copy: src={{ item }} dest=/etc/monit/scripts/
+  with_fileglob: "*.sh"
+  notify: Restart monit
+
+- name: Generate other notification scripts for monit
+  template: src={{ item }} dest=/etc/monit/scripts/{{ item | basename | regex_replace('\.j2','') }}
+  with_fileglob: "../templates/*.sh.j2"
+  notify: Restart monit

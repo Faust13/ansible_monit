@@ -1,0 +1,33 @@
+#!/bin/bash
+
+function usage
+{
+    if [ -n "$1" ]; then echo $1; fi
+    echo "Usage: sendtelegram  [message]"
+    exit 1
+}
+
+TOKEN="{{ tg_token }}"
+CHATID="{{ tg_chatID }}"
+TEXT="$1"
+
+# Verify parameters
+if [ -z "$1" ]; then usage "Message not set, it must be provided on the command line."; fi;
+
+# Sending to Telegram
+URL="https://api.telegram.org/bot$TOKEN/sendMessage"
+TIMEOUT=10
+
+echo "Sending message '$TEXT' to $CHATID"
+
+CMDARGS="chat_id=$CHATID&disable_web_page_preview=1&text=$TEXT"
+
+if [ ! -z $PARSEMODE_ARG ]; then
+    CMDARGS=${CMDARGS}"&parse_mode=markdown"
+fi
+
+CMD=`curl -s --max-time $TIMEOUT -d "$CMDARGS" $URL 2>&1`
+
+if [ $? -gt 0 ]; then echo "Failed sending Telegram"
+else echo "Done!"
+fi

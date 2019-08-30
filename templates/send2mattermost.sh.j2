@@ -1,0 +1,23 @@
+#!/bin/sh
+
+COLOR=${1:-default}
+
+/usr/bin/curl \
+    -X POST \
+    -s \
+    --data-urlencode "payload={ \
+        \"channel\": \"#{{ mattermost_channel }}\", \
+        \"username\": \"Monit\", \
+        \"attachments\": [ { \
+            \"fallback\": \"$MONIT_HOST: $MONIT_SERVICE - $MONIT_DESCRIPTION\", \
+            \"pretext\": \"**$MONIT_HOST** @ $MONIT_DATE\", \
+            \"text\": \"**$MONIT_SERVICE** - $MONIT_DESCRIPTION\", \
+            \"color\": \"$COLOR\" \
+        } ],\
+        \"icon_url\": \"https://mmonit.com/monit/img/MonitLogo.png\" \
+    }" \
+    {% if mattermost_ssl==True %}
+    https://{{ mattermost_url }}/hooks/{{ mattermost_webhook }}
+    {% else %}
+    http://{{ mattermost_url }}/hooks/{{ mattermost_webhook }}
+    {% endif %}
